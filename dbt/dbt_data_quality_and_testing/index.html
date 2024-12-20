@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://qapd01.github.io/dbt-for-data-engineer/dbt/dbt_data_quality_and_testing/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Data Quality and Testing - DBT for Data Engineering</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Data Quality and Testing";
+        var mkdocs_page_input_path = "dbt/dbt_data_quality_and_testing.md";
+        var mkdocs_page_url = "/dbt-for-data-engineer/dbt/dbt_data_quality_and_testing/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> DBT for Data Engineering
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">DBT</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../sql_transformation_and_modeling_1/">SQL Transformation and Modeling</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../advance_technique/">Advance Techniques</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Data Quality and Testing</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#data-tests">Data tests</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#unit-tests">Unit tests</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dbt_docs/">Documentation</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">DBT for Data Engineering</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">DBT</li>
+      <li class="breadcrumb-item active">Data Quality and Testing</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/qapd01/dbt-for-data-engineer/edit/master/docs/dbt/dbt_data_quality_and_testing.md">Edit on qapd01/dbt-for-data-engineer</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>Module 5: Data Quality and Testing</p>
+<p>Introduction to dbt testing
+Writing custom data quality tests
+Generic vs. singular tests
+Implementing data validation
+Monitoring and alerting strategies
+Best practices for ensuring data reliability</p>
+<h1 id="dbt-testing-ensuring-data-quality-and-reliability">DBT Testing: Ensuring Data Quality and Reliability</h1>
+<h2 id="data-tests">Data tests</h2>
+<ol>
+<li>
+<p>Types of Tests in dbt</p>
+</li>
+<li>
+<p>Generic Tests
+  Built-in tests that can be applied across different models:</p>
+</li>
+</ol>
+<pre><code>models:
+  - name: orders
+    columns:
+      - name: order_id
+        tests:
+          - unique  # Ensures column values are unique
+          - not_null  # Ensures no null values
+
+      - name: amount
+        tests:
+          - accepted_values:
+              values: ['&gt;0']  # Custom value validation
+
+      - name: customer_id
+        tests:
+          - relationships:
+              to: ref('customers')  # Referential integrity test
+              field: customer_id
+</code></pre>
+<h2 id="unit-tests">Unit tests</h2>
+<ul>
+<li>Model</li>
+</ul>
+<pre><code>with customers as (
+
+    select * from {{ ref('stg_customers') }}
+
+),
+
+accepted_email_domains as (
+
+    select * from {{ ref('top_level_email_domains') }}
+
+),
+
+check_valid_emails as (
+
+    select
+        customers.customer_id,
+        customers.first_name,
+        customers.last_name,
+        customers.email,
+          coalesce (regexp_like(
+            customers.email, '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'
+        )
+        = true
+        and accepted_email_domains.tld is not null,
+        false) as is_valid_email_address
+    from customers
+        left join accepted_email_domains
+        on customers.email_top_level_domain = lower(accepted_email_domains.tld)
+
+)
+
+select * from check_valid_emails
+</code></pre>
+<ul>
+<li>Unit test
+ file unit test place in src tests/case_1_..._.md</li>
+</ul>
+<pre><code>unit_tests:
+  - name: test_is_valid_email_address
+    description: &quot;Check my is_valid_email_address logic captures all known edge cases - emails without ., emails without @, and emails from invalid domains.&quot;
+    model: dim_customers
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {email: cool@example.com,    email_top_level_domain: example.com}
+          - {email: cool@unknown.com,    email_top_level_domain: unknown.com}
+          - {email: badgmail.com,        email_top_level_domain: gmail.com}
+          - {email: missingdot@gmailcom, email_top_level_domain: gmail.com}
+      - input: ref('top_level_email_domains')
+        rows:
+          - {tld: example.com}
+          - {tld: gmail.com}
+    expect:
+      rows:
+        - {email: cool@example.com,    is_valid_email_address: true}
+        - {email: cool@unknown.com,    is_valid_email_address: false}
+        - {email: badgmail.com,        is_valid_email_address: false}
+        - {email: missingdot@gmailcom, is_valid_email_address: false}
+
+</code></pre>
+<p>Run the <strong>dbt test</strong> command:</p>
+<pre><code>$ dbt test
+
+Found 3 models, 2 tests, 0 snapshots, 0 analyses, 130 macros, 0 operations, 0 seed files, 0 sources
+
+17:31:05 | Concurrency: 1 threads (target='learn')
+17:31:05 |
+17:31:05 | 1 of 2 START test not_null_order_order_id..................... [RUN]
+17:31:06 | 1 of 2 PASS not_null_order_order_id........................... [PASS in 0.99s]
+17:31:06 | 2 of 2 START test unique_order_order_id....................... [RUN]
+17:31:07 | 2 of 2 PASS unique_order_order_id............................. [PASS in 0.79s]
+17:31:07 |
+17:31:07 | Finished running 2 tests in 7.17s.
+
+Completed successfully
+
+Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
+
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../advance_technique/" class="btn btn-neutral float-left" title="Advance Techniques"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../dbt_docs/" class="btn btn-neutral float-right" title="Documentation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/qapd01/dbt-for-data-engineer" class="fa fa-code-fork" style="color: #fcfcfc"> qapd01/dbt-for-data-engineer</a>
+        </span>
+    
+    
+      <span><a href="../advance_technique/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../dbt_docs/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
