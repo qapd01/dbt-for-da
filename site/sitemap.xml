@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/dbt/advance_technique/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/dbt/basic_and_project_structure/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/dbt/dbt_cmd/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/dbt/dbt_data_quality_and_testing/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/dbt/dbt_docs/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/dbt/sql_transformation_and_modeling/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+    <url>
+         <loc>https://qapd01.github.io/dbt-for-data-engineer/dbt/sql_transformation_and_modeling_1/</loc>
+         <lastmod>2024-12-20</lastmod>
+    </url>
+</urlset>

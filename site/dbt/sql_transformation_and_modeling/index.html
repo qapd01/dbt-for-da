@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://qapd01.github.io/dbt-for-data-engineer/dbt/sql_transformation_and_modeling/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Sql transformation and modeling - DBT for Data Engineering</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Sql transformation and modeling";
+        var mkdocs_page_input_path = "dbt/sql_transformation_and_modeling.md";
+        var mkdocs_page_url = "/dbt-for-data-engineer/dbt/sql_transformation_and_modeling/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> DBT for Data Engineering
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">DBT</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../sql_transformation_and_modeling_1/">SQL Transformation and Modeling</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../advance_technique/">Advance Techniques</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dbt_data_quality_and_testing/">Data Quality and Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dbt_docs/">Documentation</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">DBT for Data Engineering</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Sql transformation and modeling</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/qapd01/dbt-for-data-engineer/edit/master/docs/dbt/sql_transformation_and_modeling.md">Edit on qapd01/dbt-for-data-engineer</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>Module 3: SQL Transformations and Modeling</p>
+<p>Writing effective dbt models
+Understanding materialization types</p>
+<p>Tables
+Views
+Incremental models</p>
+<p>Handling complex transformations
+Writing clean, modular SQL
+Performance optimization techniques
+Working with common data transformation patterns</p>
+<p>1 Materialization Types
+Materialization defines how your models are created and stored in the data warehouse:<br></p>
+<ul>
+<li>Table Materialization<ul>
+<li>Creates a full table in the database</li>
+<li>Best for complex transformations or when you need fast query performance</li>
+<li>Rebuilds the entire table each time</li>
+</ul>
+</li>
+</ul>
+<pre><code>{{ config(materialized='table') }}
+
+SELECT 
+    customer_id,
+    SUM(order_amount) as total_revenue,
+    COUNT(DISTINCT order_id) as order_count
+FROM 
+    {{ ref('raw_orders') }}
+GROUP BY 
+    customer_id
+</code></pre>
+<ul>
+<li>View Materialization<ul>
+<li>Creates a virtual table (saved query)</li>
+<li>Lightweight, always reflects latest source data</li>
+<li>Good for simple transformations</li>
+</ul>
+</li>
+</ul>
+<pre><code>{{ config(materialized='view') }}
+
+SELECT 
+    date,
+    SUM(sales_amount) as daily_sales
+FROM 
+    {{ ref('sales_data') }}
+GROUP BY 
+    date
+</code></pre>
+<ul>
+<li>Incremental Materialization<ul>
+<li>Only processes new or updated records</li>
+<li>Ideal for large datasets and frequent updates</li>
+</ul>
+</li>
+</ul>
+<pre><code>{{ config(
+    materialized='incremental',
+    unique_key='order_id'
+) }}
+
+SELECT 
+    order_id,
+    customer_id,
+    order_date,
+    total_amount
+FROM 
+    {{ ref('raw_orders') }}
+{% if is_incremental() %}
+    WHERE order_date &gt; (SELECT MAX(order_date) FROM {{ this }})
+{% endif %}
+</code></pre>
+<p>2 Writing Clean, Modular SQL</p>
+<ul>
+<li>Modularization Techniques<ul>
+<li>Use ref() to reference other models</li>
+<li>Break complex transformations into multiple models</li>
+<li>Create reusable CTEs</li>
+</ul>
+</li>
+</ul>
+<pre><code>WITH customer_orders AS (
+    SELECT 
+        customer_id,
+        COUNT(order_id) as total_orders
+    FROM 
+        {{ ref('orders') }}
+    GROUP BY 
+        customer_id
+),
+
+customer_revenue AS (
+    SELECT 
+        customer_id,
+        SUM(order_total) as lifetime_revenue
+    FROM 
+        {{ ref('orders') }}
+    GROUP BY 
+        customer_id
+)
+
+SELECT 
+    c.customer_id,
+    c.total_orders,
+    r.lifetime_revenue
+FROM 
+    customer_orders c
+JOIN 
+    customer_revenue r ON c.customer_id = r.customer_id
+</code></pre>
+<p>3 Performance Optimization Techniques</p>
+<ul>
+<li>Use incremental models for large datasets<ul>
+<li>Partition large tables</li>
+<li>Use appropriate clustering keys</li>
+<li>Avoid unnecessary JOINs and complex subqueries</li>
+</ul>
+</li>
+</ul>
+<pre><code>{{ config(
+    materialized='incremental',
+    partition_by='order_date',
+    cluster_by=['customer_segment']
+) }}
+
+SELECT 
+    order_date,
+    customer_segment,
+    SUM(order_total) as segment_revenue
+FROM 
+    {{ ref('orders') }}
+{% if is_incremental() %}
+    WHERE order_date &gt; (SELECT MAX(order_date) FROM {{ this }})
+{% endif %}
+GROUP BY 
+    order_date, 
+    customer_segment
+</code></pre>
+<p>4 Common Data Transformation Patterns
+Slowly Changing Dimensions (SCD)
+Track historical changes in dimension tables</p>
+<pre><code>WITH current_data AS (
+    SELECT 
+        customer_id,
+        name,
+        email,
+        CURRENT_TIMESTAMP as valid_from
+    FROM 
+        {{ ref('customer_source') }}
+),
+
+historical_data AS (
+    SELECT 
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY customer_id 
+            ORDER BY valid_from DESC
+        ) as rn
+    FROM 
+        {{ this }}
+)
+
+SELECT * FROM (
+    SELECT 
+        customer_id,
+        name,
+        email,
+        valid_from
+    FROM 
+        current_data
+
+    UNION ALL
+
+    SELECT 
+        customer_id,
+        name,
+        email,
+        valid_from
+    FROM 
+        historical_data
+    WHERE 
+        rn &gt; 1
+)
+</code></pre>
+<p>Key Takeaways for dbt Beginners:</p>
+<p>Start with simple models
+Use ref() to create dependencies
+Choose the right materialization type
+Keep transformations modular
+Focus on readability and performance</p>
+<p>Pro Tips:</p>
+<p>Use dbt's built-in testing
+Leverage dbt documentation
+Learn to use dbt Cloud or dbt Core
+Practice with sample datasets</p>
+<p>Remember, dbt is about making your data transformations more maintainable, transparent, and efficient!</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/qapd01/dbt-for-data-engineer" class="fa fa-code-fork" style="color: #fcfcfc"> qapd01/dbt-for-data-engineer</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

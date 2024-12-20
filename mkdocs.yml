@@ -1,0 +1,41 @@
+repo_name: qapd01/dbt-for-data-engineer
+site_name: DBT for Data Engineering
+site_url: https://qapd01.github.io/dbt-for-data-engineer/
+repo_url: https://github.com/qapd01/dbt-for-data-engineer
+
+
+theme:
+  name: readthedocs
+  # features:
+  #   - content.code.copy
+
+# markdown_extensions:
+#   - attr_list
+#   - pymdownx.emoji:
+#       emoji_index: !!python/name:material.extensions.emoji.twemoji
+#       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+#   - pymdownx.highlight:
+#       anchor_linenums: true
+#       line_spans: __span
+#       pygments_lang_class: true
+#   - pymdownx.inlinehilite
+#   - pymdownx.snippets
+#   - pymdownx.superfences:
+#       custom_fences:
+#         - name: mermaid
+#           class: mermaid
+#           format: !!python/name:pymdownx.superfences.fence_code_format
+#   - pymdownx.tabbed:
+#       alternate_style: true
+#   - admonition
+#   - pymdownx.details
+
+
+nav:
+  - Home: index.md
+  - DBT:
+    # - Basic and Project Structure: dbt/basic_and_project_structure.md
+    - SQL Transformation and Modeling: dbt/sql_transformation_and_modeling_1.md
+    - Advance Techniques: dbt/advance_technique.md
+    - Data Quality and Testing: dbt/dbt_data_quality_and_testing.md
+    - Documentation : dbt/dbt_docs.md
