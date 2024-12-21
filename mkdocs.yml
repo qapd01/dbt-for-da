@@ -34,7 +34,8 @@ theme:
 nav:
   - Home: index.md
   - DBT:
-    # - Basic and Project Structure: dbt/basic_and_project_structure.md
+    - Setting up dbt project: dbt/setting_up_dbt_project.md
+    - Basic and Project Structure: dbt/basic_and_project_structure.md
     - SQL Transformation and Modeling: dbt/sql_transformation_and_modeling_1.md
     - Advance Techniques: dbt/advance_technique.md
     - Data Quality and Testing: dbt/dbt_data_quality_and_testing.md
